@@ -204,11 +204,12 @@ const register = async function (req, res) {
     if (userEmail) {
       return res.status(400).send({ status: false, message: "User already exists" });
     }
-    const user = await userModel.create({ firstName, lastName, email, password, recruiter });
+     const hashedNewPassword = await bcrypt.hash(password, Number(10));
+    const user = await userModel.create({ firstName, lastName, email, hashedNewPassword, recruiter });
     if (user) {
       return res.status(201).send({ status: true, message: "User created successfully", data: user });
     } else {
-      return res.status(40).send({ status: false, message: "User creation failed" });
+      return res.status(400).send({ status: false, message: "User creation failed" });
     }
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
