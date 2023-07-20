@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
 const dotenv = require("dotenv");
-const morgan = require('morgan');
+dotenv.config();
+// const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const route = require('./src/Routes/router');
-app.use(morgan('dev'));
-dotenv.config();
+// app.use(morgan('dev'));
 
 // DATABASE CONNECTION
 mongoose
@@ -21,7 +21,13 @@ mongoose
     })
     .catch((err) => console.log(err));
 
-app.use( cors());
+app.use(
+    cors({
+      origin: 'http://hiclousia.com',
+      methods: ['GET', 'POST', 'PUT', 'DELETE' , "PATCH"],
+    })
+  );
+  
 app.use(express.json());
 app.use('/', route);
 // PORT
