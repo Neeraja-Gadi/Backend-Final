@@ -303,7 +303,7 @@ const loginUser = async function (req, res) {
      return res.status(404).send({ status: false, message: "Invalid username or password" });
     }
     const bcryptdecodedPassword = await bcrypt.compare(password, user.password)
-    if (bcryptdecodedPassword) return res.status(404).send({ status: false, message: "Incorrect password" });
+    if (!bcryptdecodedPassword) return res.status(404).send({ status: false, message: "Incorrect password" });
     const token = jwt.sign(user._id.toString(), "Hiclousia"); // should be kept in the env file
     return res.status(200).send({ status: true, message: "User logged in successfully", token: token, data: user });
   } catch (err) {
