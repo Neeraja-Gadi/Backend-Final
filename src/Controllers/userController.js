@@ -299,7 +299,7 @@ const loginUser = async function (req, res) {
     if (validationResult.error) {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     }
-    const user = await userModel.findOne({ email:email, isDeleted: false });
+    const user = await userModel.findOne({ email:email });
     if (!user) {
      return res.status(404).send({ status: false, message: "Invalid username or password" });
     }
