@@ -366,8 +366,8 @@ const PlanWithJobPostInformation = async (req, res) => {
   try {
     const userDetailsID = req.params.userDetailsID;
 
-    const subscriptionPlans = await revenueRModel.findOne({
-      _id: req.params.id,
+    const subscriptionPlans = await revenueRModel.findOne({_id: req.params.id,
+
       userDetailsID,
       isDeleted: false
     })
@@ -375,6 +375,7 @@ const PlanWithJobPostInformation = async (req, res) => {
     if (!subscriptionPlans) {
       return res.status(404).json({ status: false, message: 'Plans not found' });
     }
+
     const currentDate = new Date();
     const expiryDate = new Date(subscriptionPlans.start);
     expiryDate.setDate(expiryDate.getDate() + subscriptionPlans.duration);
@@ -382,10 +383,15 @@ const PlanWithJobPostInformation = async (req, res) => {
     const isSubscriptionActive = currentDate <= expiryDate;
 
     const jobPosts = await jobModel.find({
-      userDetailsID
+      userDetailsID,
+      recruiterPlan: subscriptionPlans._id
     });
+
+    // Filter and keep only the first job post according to "jobPostno": 1
+    const filteredJobPosts = jobPosts.slice(0, subscriptionPlans.jobPostno);
+
     // Update the isExpired and isDeleted fields for each job post
-    for (const jobPost of jobPosts) {
+    for (const jobPost of filteredJobPosts) {
       const createdAt = new Date(jobPost.createdAt);
       const expiry = new Date(createdAt);
       expiry.setMonth(expiry.getMonth() + 1); // Set expiry to one month after createdAt
@@ -395,9 +401,9 @@ const PlanWithJobPostInformation = async (req, res) => {
         jobPost.isDeleted = true;
       }
     }
-    await Promise.all(jobPosts.map(jobPost => jobPost.save())); // Save the updated job posts
+    await Promise.all(filteredJobPosts.map(jobPost => jobPost.save())); // Save the updated job posts
 
-    const jobCount = jobPosts.length;
+    const jobCount = filteredJobPosts.length;
 
     const remainingDays = Math.ceil((expiryDate - currentDate) / (1000 * 60 * 60 * 24));
     const status = remainingDays >= 0 && isSubscriptionActive;
@@ -420,7 +426,7 @@ const PlanWithJobPostInformation = async (req, res) => {
       expiryDate: expiryDate.toISOString(),
       remainingDays: remainingDays,
       jobCount: jobCount,
-      jobPosts: jobPosts.map((jobPost) => ({
+      jobPosts: filteredJobPosts.map((jobPost) => ({
         _id: jobPost._id,
         jobCategory: jobPost.jobCategory,
         jobRole: jobPost.jobRole,
@@ -442,6 +448,8 @@ const PlanWithJobPostInformation = async (req, res) => {
     return res.status(500).send({ status: false, message: error.message });
   }
 };
+
+
 // *********************jobSearch************************jobSearch*************************jobSearch**************//
 
 const searchJobseekerGeneral = async (req, res) => {
