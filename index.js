@@ -12,6 +12,7 @@ app.use(express.json());
 
 // DATABASE CONNECTION
 mongoose
+    .connect(process.env.DATABASE , {
     .connect(process.env.DATABASE, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -22,6 +23,16 @@ mongoose
         console.log('MongoDB Is Connected To Hiclousia');
     })
     .catch((err) => console.log(err));
+
+app.use(
+    cors({
+      origin: 'http://hiclousia.com',
+      methods: ['GET', 'POST', 'PUT', 'DELETE' , "PATCH"],
+    })
+  );
+  
+app.use(express.json());
+app.use('/', route);
 
     app.use(
         cors({

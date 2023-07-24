@@ -251,11 +251,12 @@ const register = async function (req, res) {
     if (userEmail) {
       return res.status(400).send({ status: false, message: "User already exists" });
     }
-    const user = await userModel.create({ firstName, lastName, email, password, recruiter });
+     const hashedNewPassword = await bcrypt.hash(password, 10);
+    const user = await userModel.create({ firstName, lastName, email,  password:hashedNewPassword, recruiter });
     if (user) {
       return res.status(201).send({ status: true, message: "User created successfully", data: user });
     } else {
-      return res.status(40).send({ status: false, message: "User creation failed" });
+      return res.status(400).send({ status: false, message: "User creation failed" });
     }
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
@@ -350,7 +351,7 @@ const loginUser = async function (req, res) {
      return res.status(404).send({ status: false, message: "Invalid username or password" });
     }
     const bcryptdecodedPassword = await bcrypt.compare(password, user.password)
-    if (bcryptdecodedPassword) return res.status(404).send({ status: false, message: "Incorrect password" });
+    if (!bcryptdecodedPassword) return res.status(404).send({ status: false, message: "Incorrect password" });
     const token = jwt.sign(user._id.toString(), "Hiclousia"); // should be kept in the env file
     return res.status(200).send({ status: true, message: "User logged in successfully", token: token, data: user });
   } catch (err) {
