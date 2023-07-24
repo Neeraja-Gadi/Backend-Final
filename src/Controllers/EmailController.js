@@ -34,6 +34,7 @@ async function SendMailToUsers(req,res){
     try
     {
          let users=req.body.users
+         console.log(users)
          const ID = req.query.id; 
          const jobPost = await jobModel.findOne({_id : ID});
 
@@ -48,15 +49,17 @@ async function SendMailToUsers(req,res){
           }
           let emailBody = `Your shortlisted candidates details are `
           users.map(async (user)=>{
-            userProfile=await userprofileModel.findOne({userDetailsId:user._id})
+            
               emailBody = emailBody+`
-            Name :${user.firstName +' ' + user.lastName}  
-            Email:${user.email}
-            Phone No:${userProfile.phoneNumber}`
+            Name :${user.user.firstName +' ' + user.user.lastName}  
+            Email:${user.user.email}
+            Phone No:${user.userProfile.phone}
+            
+            `
 
           })
 
-        
+      
         await mailSender.sendMail(recruiter.email,`Details of the shortlisted Candidates`,emailBody)
         res.status(200).send({status:true , message : "Mail sucessful" } )
     }
