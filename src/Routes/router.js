@@ -5,6 +5,7 @@ const infoController = require("../Controllers/infoController");
 const jobController = require("../Controllers/jobController");
 const recruiterController = require("../Controllers/recruiterController");
 const skillmappingController = require("../Controllers/skillmappingController")
+const mailController =require("../Controllers/EmailController")
 
 const talentController = require("../Controllers/preferenceController");
 // const {
@@ -97,4 +98,6 @@ router.get('/getskillstemplates',skillmappingController.getskillstemplates)
 // router.post('/notifications/schedule-interview/:sender', scheduleInterview);
 // router.post('/notifications/onboard/:sender', onboardTalent);
 // router.post('/notifications/reject/:sender', rejectTalent);
+router.get('/sendMail',mailController.SendMail)
+router.post('/SendMailToUsers',mailController.SendMailToUsers)
 module.exports = router;

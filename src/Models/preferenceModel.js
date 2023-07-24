@@ -22,7 +22,7 @@ const preferenceSchema = new mongoose.Schema(
     jobNature: {
       type: [String],
       required: true,
-      enum:["Remote", "Onsite", "Hybrid", "Internship", "Full-Time", "Part-time", "WFH"],
+      // enum:["Remote", "Onsite", "Hybrid", "Internship", "Full-Time", "Part-time", "WFH"],
       default: "Full-Time",
     },
     sector: { 
