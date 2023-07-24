@@ -52,10 +52,11 @@ const recruiterInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 const recruiterInformation = async function (req, res) {
   try {
     const id = req.params.id;
-    const recruiterData = await recruiterModel.find({ _id: id });
+    const recruiterData = await recruiterModel.findOne({userDetailsID: id });
     if (!recruiterData) {
       return res.status(404).send({ status: false, message: 'recruiterData data not found' });
     }
@@ -366,8 +367,8 @@ const PlanWithJobPostInformation = async (req, res) => {
   try {
     const userDetailsID = req.params.userDetailsID;
 
-    const subscriptionPlans = await revenueRModel.findOne({
-      _id: req.params.id,
+    const subscriptionPlans = await revenueRModel.findOne({_id: req.params.id,
+
       userDetailsID,
       isDeleted: false
     })
@@ -375,6 +376,7 @@ const PlanWithJobPostInformation = async (req, res) => {
     if (!subscriptionPlans) {
       return res.status(404).json({ status: false, message: 'Plans not found' });
     }
+
     const currentDate = new Date();
     const expiryDate = new Date(subscriptionPlans.start);
     expiryDate.setDate(expiryDate.getDate() + subscriptionPlans.duration);
@@ -382,10 +384,15 @@ const PlanWithJobPostInformation = async (req, res) => {
     const isSubscriptionActive = currentDate <= expiryDate;
 
     const jobPosts = await jobModel.find({
-      userDetailsID
+      userDetailsID,
+      recruiterPlan: subscriptionPlans._id
     });
+
+    // Filter and keep only the first job post according to "jobPostno": 1
+    const filteredJobPosts = jobPosts.slice(0, subscriptionPlans.jobPostno);
+
     // Update the isExpired and isDeleted fields for each job post
-    for (const jobPost of jobPosts) {
+    for (const jobPost of filteredJobPosts) {
       const createdAt = new Date(jobPost.createdAt);
       const expiry = new Date(createdAt);
       expiry.setMonth(expiry.getMonth() + 1); // Set expiry to one month after createdAt
@@ -395,9 +402,9 @@ const PlanWithJobPostInformation = async (req, res) => {
         jobPost.isDeleted = true;
       }
     }
-    await Promise.all(jobPosts.map(jobPost => jobPost.save())); // Save the updated job posts
+    await Promise.all(filteredJobPosts.map(jobPost => jobPost.save())); // Save the updated job posts
 
-    const jobCount = jobPosts.length;
+    const jobCount = filteredJobPosts.length;
 
     const remainingDays = Math.ceil((expiryDate - currentDate) / (1000 * 60 * 60 * 24));
     const status = remainingDays >= 0 && isSubscriptionActive;
@@ -420,7 +427,7 @@ const PlanWithJobPostInformation = async (req, res) => {
       expiryDate: expiryDate.toISOString(),
       remainingDays: remainingDays,
       jobCount: jobCount,
-      jobPosts: jobPosts.map((jobPost) => ({
+      jobPosts: filteredJobPosts.map((jobPost) => ({
         _id: jobPost._id,
         jobCategory: jobPost.jobCategory,
         jobRole: jobPost.jobRole,
@@ -442,6 +449,7 @@ const PlanWithJobPostInformation = async (req, res) => {
     return res.status(500).send({ status: false, message: error.message });
   }
 };
+
 // *********************jobSearch************************jobSearch*************************jobSearch**************//
 
 const searchJobseekerGeneral = async (req, res) => {
@@ -855,6 +863,7 @@ async function recruiterSearch(req, res) {
 //   }
 // };
 
+
 const PREP = async function (req, res) {
   try {
     const ID = req.params.id; // Assuming params_id is the ID of the job post
@@ -880,7 +889,7 @@ const PREP = async function (req, res) {
         const userProfile = await userprofileModel.findOne({ userDetailsID: user._id }).lean();
         const preferenceDetails = await preferenceModel.findOne({ userDetailsID: user._id }).lean();
 
-        if (!userProfile) {
+        if (!userProfile||!skillsDetails) {
           // Skip the current user and continue with the next iteration
           return;
         }
@@ -993,7 +1002,6 @@ const PREP = async function (req, res) {
     res.status(500).send({ status: false, error: error.message });
   }
 };
-
 
 module.exports = {
   recruiterInformation, recruiterInfo, updateRecruiterData, recruiterSearch, PREP,
