@@ -16,22 +16,69 @@ const { Readable } = require("stream");
 // const { DeleteObjectsCommand } = require("@aws-sdk/client-s3");
 
 // ********************************************************************************************************************
+// const userGeneral = async function (req, res) {
+//   try {
+//     upload.fields([
+//       { name: 'profileLink', maxCount: 1 },
+//       { name: 'document', maxCount: 1 },
+//     ])(req, res, async function (err) {
+//       if (err) {
+//         return res.status(500).send({ status: false, message: err.message });
+//       }
+
+//       const { userDetailsID, gitLink, gender, doB, phone, location, aboutMe, salary } = req.body;
+//       const { profileLink, document } = req.files;
+
+//       if (!profileLink || !document) {
+//         return res.status(400).send({ status: false, message: 'profileLink and document are required' });
+//       }
+
+//       const userProfileData = {
+//         userDetailsID,
+//         gitLink,
+//         gender,
+//         doB,
+//         phone,
+//         location,
+//         aboutMe,
+//         salary,
+//         profileLink: {
+//           key: req.files.profileLink[0].key,
+//           url: req.files.profileLink[0].location
+//         },
+//         document: {
+//           key: req.files.document[0].key,
+//           url: req.files.document[0].location
+//         }
+//       };
+
+//       const data = await userprofileModel.create(userProfileData);
+
+//       if (data) {
+//         return res.status(200).send({ status: true, data: data, message: 'User profile data created' });
+//       }
+//     });
+//   } catch (err) {
+//     res.status(500).send({ status: false, message: err.message });
+//   }
+// };
+
 const userGeneral = async function (req, res) {
   try {
-    upload.fields([
-      { name: 'profileLink', maxCount: 1 },
-      { name: 'document', maxCount: 1 },
-    ])(req, res, async function (err) {
-      if (err) {
-        return res.status(500).send({ status: false, message: err.message });
-      }
+    // upload.fields([
+    //   { name: 'profileLink', maxCount: 1 },
+    //   { name: 'document', maxCount: 1 },
+    // ])(req, res, async function (err) {
+    //   if (err) {
+    //     return res.status(500).send({ status: false, message: err.message });
+    //   }
 
       const { userDetailsID, gitLink, gender, doB, phone, location, aboutMe, salary } = req.body;
-      const { profileLink, document } = req.files;
+      // const { profileLink, document } = req.files;
 
-      if (!profileLink || !document) {
-        return res.status(400).send({ status: false, message: 'profileLink and document are required' });
-      }
+      // if (!profileLink || !document) {
+      //   return res.status(400).send({ status: false, message: 'profileLink and document are required' });
+      // }
 
       const userProfileData = {
         userDetailsID,
@@ -42,14 +89,14 @@ const userGeneral = async function (req, res) {
         location,
         aboutMe,
         salary,
-        profileLink: {
-          key: req.files.profileLink[0].key,
-          url: req.files.profileLink[0].location
-        },
-        document: {
-          key: req.files.document[0].key,
-          url: req.files.document[0].location
-        }
+        // profileLink: {
+        //   key: req.files.profileLink[0].key,
+        //   url: req.files.profileLink[0].location
+        // },
+        // document: {
+        //   key: req.files.document[0].key,
+        //   url: req.files.document[0].location
+        // }
       };
 
       const data = await userprofileModel.create(userProfileData);
@@ -57,7 +104,7 @@ const userGeneral = async function (req, res) {
       if (data) {
         return res.status(200).send({ status: true, data: data, message: 'User profile data created' });
       }
-    });
+    // });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
   }
@@ -194,7 +241,7 @@ const register = async function (req, res) {
       lastName: Joi.string().pattern(new RegExp("^[a-zA-Z]")).required(),
       email: Joi.string().email().required(),
       recruiter: Joi.boolean().required(),
-      password: Joi.string().min(8).max(15).required()
+      password: Joi.string().min(8).max(15).required(),
     });
     const validationResult = userSchema.validate(req.body);
     if (validationResult.error) {
@@ -298,7 +345,7 @@ const loginUser = async function (req, res) {
     if (validationResult.error) {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     }
-    const user = await userModel.findOne({ email:email, isDeleted: false });
+    const user = await userModel.findOne({ email:email });
     if (!user) {
      return res.status(404).send({ status: false, message: "Invalid username or password" });
     }
@@ -515,6 +562,8 @@ const updateUserIsApplied = async (req, res) => {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+// ***********************************************************************************
 
 const TalentRecommendations = async function (req, res) {
   try {
