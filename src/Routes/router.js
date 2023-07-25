@@ -20,20 +20,22 @@ const talentController = require("../Controllers/preferenceController");
 //   } = require('../Controllers/notificationController');
 // **********************************Education*************************************************************
 router.post("/education", infoController.educationInfo);
-router.put("/education/:id", infoController.updateEducationData);
+router.put("/educations/:id", infoController.updateEducationData);
 router.get("/educationInformationByID/:id", infoController.educationInformationByID);//get education info from req.params.id
 router.delete('/Education/:id', infoController.deleteEducation);
 // **********************************Experience************************************************************
 router.post("/experience", infoController.experienceInfo);
-router.put("/experience/:id", infoController.updateExperienceData);
+router.put("/experiences/:id", infoController.updateExperienceData);
 router.get("/experienceInformationByID/:id", infoController.experienceInformationByID);//get experience info from req.params.id
 router.delete('/Experience/:id', infoController.deleteExperience);
 // **********************************Projects**************************************************************
+
 router.post("/project", infoController.projectInfo);
-router.get("/projectInformationByID/:id", infoController.projectInformationByID);//get project info from req.params.id
+// router.get("/projectInformationByID/:id", infoController.projectInformationByID);//get project info from req.params.id
 router.get("/getProjectByUserDetailsID/:id", infoController.getProjectByUserDetailsID);//get project info from req.params.UserDetailsID
 router.delete('/Projects/:id', infoController.deleteProject);
-router.put('/Projectss/:id', infoController.updateProject);
+router.put('/pprojects/:id', infoController.updateProject);
+
 // **********************************Skills_Details********************************************************
 router.post("/skill", infoController.skillsInfo);
 router.put("/skill/:id", infoController.updateSkillsData);

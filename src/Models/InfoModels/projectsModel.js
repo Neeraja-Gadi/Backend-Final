@@ -33,7 +33,7 @@ const projectsSchema = new mongoose.Schema(
         description:{
             type: String,
         },
-        Url:{
+        url:{
             type:String,
         },
         isDeleted:{

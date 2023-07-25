@@ -36,6 +36,53 @@ const educationInfo = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+// const updateEducationData = async function (req, res) {
+//   try {
+//     const educationSchema = Joi.object({
+//       userDetailsID: Joi.string(),
+//       educationLevel: Joi.string(),
+//       collegeName: Joi.string(),
+//       authority: Joi.string(),
+//       discipline: Joi.string(),
+//       degreeName: Joi.string().required(),
+//       yearOfpassout: Joi.string().required(),
+//       startYear: Joi.string().required(),
+//       endYear: Joi.string().required(),
+//     });
+//     const validationResult = educationSchema.validate(req.body, {
+//       abortEarly: false,
+//     });
+//     if (validationResult.error) {
+//       return res
+//         .status(400)
+//         .send({ status: false, message: validationResult.error.details[0].message });
+//     }
+//     const id = req.params.id;
+//     let educationData = {};
+//     educationData = await educationModel.findById(id);
+//     if (!educationData) {
+//       return res.status(404).send({ status: false, message: 'Education data not found' });
+//     }
+//     // Update education data
+//     educationData.userDetailsID = req.body.userDetailsID;
+//     educationData.educationLevel = req.body.educationLevel;
+//     educationData.collegeName = req.body.collegeName;
+//     educationData.authority = req.body.authority;
+//     educationData.discipline = req.body.discipline;
+//     educationData.yearOfpassout = req.body.yearOfpassout;
+//     educationData.startYear = req.body.startYear;
+//     educationData.endYear = req.body.endYear;
+//     educationData.degreeName = req.body.degreeName;
+//     const updatedData = await educationModel.findByIdAndUpdate(id, educationData, { new: true });
+//     return res
+//       .status(200)
+//       .send({ status: true, data: updatedData, message: 'Education data updated' });
+//   } catch (err) {
+//     return res.status(500).send({ status: false, message: err.message });
+//   }
+// };  // prev 
+
 const updateEducationData = async function (req, res) {
   try {
     const educationSchema = Joi.object({
@@ -44,43 +91,74 @@ const updateEducationData = async function (req, res) {
       collegeName: Joi.string(),
       authority: Joi.string(),
       discipline: Joi.string(),
-      degreeName: Joi.string().required(),
-      yearOfpassout: Joi.string().required(),
-      startYear: Joi.string().required(),
-      endYear: Joi.string().required(),
+      degreeName: Joi.string(),
+      yearOfpassout: Joi.string(),
+      startYear: Joi.string(),
+      endYear: Joi.string(),
     });
+
     const validationResult = educationSchema.validate(req.body, {
       abortEarly: false,
     });
+
     if (validationResult.error) {
       return res
         .status(400)
         .send({ status: false, message: validationResult.error.details[0].message });
     }
+
+    const date = new Date(req.body.startYear);
+    const endDate = new Date(req.body.endYear);
+    const formattedEducationData = {
+      ...req.body,
+      startYear: "" + date.getFullYear() + "-" + ((1 + date.getMonth()) < 10 ? "0" + (1 + date.getMonth()) : (1 + date.getMonth())) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()),
+      endYear: "" + endDate.getFullYear() + "-" + ((1 + endDate.getMonth()) < 10 ? "0" + (1 + endDate.getMonth()) : (1 + endDate.getMonth())) + "-" + (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()),
+    };
+
     const id = req.params.id;
     let educationData = {};
     educationData = await educationModel.findById(id);
     if (!educationData) {
       return res.status(404).send({ status: false, message: 'Education data not found' });
     }
-    // Update education data
-    educationData.userDetailsID = req.body.userDetailsID;
-    educationData.educationLevel = req.body.educationLevel;
-    educationData.collegeName = req.body.collegeName;
-    educationData.authority = req.body.authority;
-    educationData.discipline = req.body.discipline;
-    educationData.yearOfpassout = req.body.yearOfpassout;
-    educationData.startYear = req.body.startYear;
-    educationData.endYear = req.body.endYear;
-    educationData.degreeName = req.body.degreeName;
-    const updatedData = await educationModel.findByIdAndUpdate(id, educationData, { new: true });
+
+    const updatedData = await educationModel.findByIdAndUpdate(id, formattedEducationData, { new: true });
+
+    // Format the startYear and endYear in the response
+    const formattedResponse = {
+      ...updatedData._doc,
+      startYear: formattedEducationData.startYear,
+      endYear: formattedEducationData.endYear,
+    };
+
     return res
       .status(200)
-      .send({ status: true, data: updatedData, message: 'Education data updated' });
+      .send({ status: true, data: formattedResponse, message: 'Education data updated' });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+// const getEducationByUserDetailsID = async (req, res) => {
+//   try {
+//     const educations = await educationModel.find().populate('userDetailsID');
+//     if (!educations) {
+//       return res.status(404).send({ status: false, message: 'projectData not found' });
+//     }
+//     const formattedProjects = educations.map((data) => ({
+//       ...data._doc,
+//       startYear: formatDate(data.startYear),
+//       endYear: formatDate(data.endYear),
+//       createdDate: formatDate(data.createdAt),
+//       updatedDate: formatDate(data.updatedAt),
+//     }));
+//     return res.status(200).send({ status: true, data: formattedProjects, message: 'Projects retrieved' });
+//   } catch (err) {
+//     res.status(500).send({ status: false, message: err.message });
+//   }
+// };//option
+
+
 const educationInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -118,6 +196,8 @@ function formatDate(date) {
   const year = formattedDate.getFullYear();
   return `${day}/${month}/${year}`;
 }
+
+
 const deleteEducation = async function (req, res) {
   try {
     const id = req.params.id;
@@ -294,6 +374,24 @@ const projectInfo = async (req, res) => {
 };
 
 // Get all projects
+// const getProjectByUserDetailsID = async (req, res) => {
+//   try {
+//     const projects = await projectsModel.find().populate('userDetailsID');
+//     if (!projects) {
+//       return res.status(404).send({ status: false, message: 'projectData not found' });
+//     }
+//     const formattedProjects = projects.map((data) => ({
+//       ...data._doc,
+//       startDate: formatDate(data.startDate),
+//       endDate: formatDate(data.endDate),
+//       createdDate: formatDate(data.createdAt),
+//       updatedDate: formatDate(data.updatedAt),
+//     }));
+//     return res.status(200).send({ status: true, data: formattedProjects, message: 'Projects retrieved' });
+//   } catch (err) {
+//     res.status(500).send({ status: false, message: err.message });
+//   }
+// };//prev
 const getProjectByUserDetailsID = async (req, res) => {
   try {
     const projects = await projectsModel.find().populate('userDetailsID');
@@ -307,15 +405,20 @@ const getProjectByUserDetailsID = async (req, res) => {
       createdDate: formatDate(data.createdAt),
       updatedDate: formatDate(data.updatedAt),
     }));
-    return res.status(200).send({ status: true, data: formattedProjects, message: 'Projects retrieved' });
+
+    // Modify the startYear and endYear fields in each project
+    const projectsWithFormattedDates = formattedProjects.map((project) => ({
+      ...project,
+      startYear: project.startDate,
+      endYear: project.endDate,
+    }));
+
+    return res.status(200).send({ status: true, data: projectsWithFormattedDates, message: 'Projects retrieved' });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
 
-
-
-// Update a project
 const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -338,15 +441,58 @@ const updateProject = async (req, res) => {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     }
 
-    const data = await projectsModel.findByIdAndUpdate(id, req.body, { new: true });
+    const date = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
+    const formattedProjectData = {
+      ...req.body,
+      startDate: "" + date.getFullYear() + "-" + ((1 + date.getMonth()) < 10 ? "0" + (1 + date.getMonth()) : (1 + date.getMonth())) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()),
+      endDate: "" + endDate.getFullYear() + "-" + ((1 + endDate.getMonth()) < 10 ? "0" + (1 + endDate.getMonth()) : (1 + endDate.getMonth())) + "-" + (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()),
+    };
+
+    const data = await projectsModel.findByIdAndUpdate(id, formattedProjectData, { new: true });
+
     if (!data) {
       return res.status(404).send({ status: false, message: 'Project not found' });
     }
+
     return res.status(200).send({ status: true, data: data, message: 'Project data updated' });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
+// // Update a project
+// const updateProject = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const projectSchema = Joi.object({
+//       userDetailsID: Joi.string(),
+//       skills: Joi.array().items(Joi.string()),
+//       projectType: Joi.string(),
+//       projectTitle: Joi.string(),
+//       startDate: Joi.string(),
+//       endDate: Joi.string(),
+//       organizationName: Joi.string(),
+//       description: Joi.string(),
+//       url: Joi.string(),
+//       isDeleted: Joi.boolean()
+//     });
+
+//     const validationResult = projectSchema.validate(req.body, { abortEarly: false });
+//     if (validationResult.error) {
+//       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
+//     }
+
+//     const data = await projectsModel.findByIdAndUpdate(id, req.body, { new: true });
+//     if (!data) {
+//       return res.status(404).send({ status: false, message: 'Project not found' });
+//     }
+//     return res.status(200).send({ status: true, data: data, message: 'Project data updated' });
+//   } catch (err) {
+//     res.status(500).send({ status: false, message: err.message });
+//   }
+// };//prev
 
 // Delete a project
 const deleteProject = async (req, res) => {
@@ -361,28 +507,32 @@ const deleteProject = async (req, res) => {
     res.status(500).send({ status: false, message: err.message });
   }
 };
-const projectInformationByID = async function (req, res) {
-  try {
-    const id = req.params.id;
-    const projectData = await projectsModel.findOne({ _id: id });
-    if (!projectData) {
-      return res.status(404).send({ status: false, message: 'projectData not found' });
-    }
-    const date=new Date(projectData.startDate);
-    const endDate=new Date(projectData.endDate);
-    const formattedProjectData = {
-      ...projectData._doc,
-      startDate:""+date.getFullYear()+"-"+((1+date.getMonth())<10?"0"+(1+date.getMonth()):(1+date.getMonth()))+"-"+(date.getDate()<10?"0"+date.getDate():date.getDate()),
-      endDate:""+endDate.getFullYear()+"-"+((1+endDate.getMonth())<10?"0"+(1+endDate.getMonth()):(1+endDate.getMonth()))+"-"+(endDate.getDate()<10?"0"+endDate.getDate():endDate.getDate()),
-      createdDate: formatDate(projectData.createdAt),
-      updatedDate: formatDate(projectData.updatedAt),
-    };
-    res.status(200).send({ status: true, data: formattedProjectData });
-  } catch (err) {
-    res.status(500).send({ status: false, message: err.message });
-  }
-};
+
+
+// const projectInformationByID = async function (req, res) {
+//   try {
+//     const id = req.params.id;
+//     const projectData = await projectsModel.findOne({ _id: id });
+//     if (!projectData) {
+//       return res.status(404).send({ status: false, message: 'projectData not found' });
+//     }
+//     const date=new Date(projectData.startDate);
+//     const endDate=new Date(projectData.endDate);
+//     const formattedProjectData = {
+//       ...projectData._doc,
+//       startDate:""+date.getFullYear()+"-"+((1+date.getMonth())<10?"0"+(1+date.getMonth()):(1+date.getMonth()))+"-"+(date.getDate()<10?"0"+date.getDate():date.getDate()),
+//       endDate:""+endDate.getFullYear()+"-"+((1+endDate.getMonth())<10?"0"+(1+endDate.getMonth()):(1+endDate.getMonth()))+"-"+(endDate.getDate()<10?"0"+endDate.getDate():endDate.getDate()),
+//       createdDate: formatDate(projectData.createdAt),
+//       updatedDate: formatDate(projectData.updatedAt),
+//     };
+//     res.status(200).send({ status: true, data: formattedProjectData });
+//   } catch (err) {
+//     res.status(500).send({ status: false, message: err.message });
+//   }
+// };//prev 
 //********************************************************************************************************************
+
+
 
 const skillsInfo = async function (req, res) {
   try {
@@ -514,4 +664,4 @@ const personalInfo = async function (req, res) {
 };
 
 
-module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, projectInformationByID, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, getProjectByUserDetailsID, updateProject, projectInfo, personalInfo };
+module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, getProjectByUserDetailsID, updateProject, projectInfo, personalInfo };
