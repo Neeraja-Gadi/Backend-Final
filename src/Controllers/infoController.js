@@ -6,6 +6,7 @@ const skillsModel = require("../Models/InfoModels/skillsModel.js");
 const userModel = require("../Models/userModel.js");
 const Joi = require('joi');
 // ********************************************************************************************************************
+
 const educationInfo = async function (req, res) {
   try {
     const educationSchema = Joi.object({
@@ -27,61 +28,24 @@ const educationInfo = async function (req, res) {
         .status(400)
         .send({ status: false, message: validationResult.error.details[0].message });
     }
-    const data = await educationModel.create(req.body);
+
+    const date = new Date(req.body.startYear);
+    const endDate = new Date(req.body.endYear);
+    const formattedEducationData = {
+      ...req.body,
+      startYear: "" + date.getFullYear() + "-" + ((1 + date.getMonth()) < 10 ? "0" + (1 + date.getMonth()) : (1 + date.getMonth())) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()),
+      endYear: "" + endDate.getFullYear() + "-" + ((1 + endDate.getMonth()) < 10 ? "0" + (1 + endDate.getMonth()) : (1 + endDate.getMonth())) + "-" + (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()),
+    };
+
+    const data = await educationModel.create(formattedEducationData);
     if (data)
       return res
         .status(201)
-        .send({ status: true, data: data, message: 'Education data created' });
+        .send({ status: true, data: { ...data._doc, startYear: formattedEducationData.startYear, endYear: formattedEducationData.endYear }, message: 'Education data created' });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-
-// const updateEducationData = async function (req, res) {
-//   try {
-//     const educationSchema = Joi.object({
-//       userDetailsID: Joi.string(),
-//       educationLevel: Joi.string(),
-//       collegeName: Joi.string(),
-//       authority: Joi.string(),
-//       discipline: Joi.string(),
-//       degreeName: Joi.string().required(),
-//       yearOfpassout: Joi.string().required(),
-//       startYear: Joi.string().required(),
-//       endYear: Joi.string().required(),
-//     });
-//     const validationResult = educationSchema.validate(req.body, {
-//       abortEarly: false,
-//     });
-//     if (validationResult.error) {
-//       return res
-//         .status(400)
-//         .send({ status: false, message: validationResult.error.details[0].message });
-//     }
-//     const id = req.params.id;
-//     let educationData = {};
-//     educationData = await educationModel.findById(id);
-//     if (!educationData) {
-//       return res.status(404).send({ status: false, message: 'Education data not found' });
-//     }
-//     // Update education data
-//     educationData.userDetailsID = req.body.userDetailsID;
-//     educationData.educationLevel = req.body.educationLevel;
-//     educationData.collegeName = req.body.collegeName;
-//     educationData.authority = req.body.authority;
-//     educationData.discipline = req.body.discipline;
-//     educationData.yearOfpassout = req.body.yearOfpassout;
-//     educationData.startYear = req.body.startYear;
-//     educationData.endYear = req.body.endYear;
-//     educationData.degreeName = req.body.degreeName;
-//     const updatedData = await educationModel.findByIdAndUpdate(id, educationData, { new: true });
-//     return res
-//       .status(200)
-//       .send({ status: true, data: updatedData, message: 'Education data updated' });
-//   } catch (err) {
-//     return res.status(500).send({ status: false, message: err.message });
-//   }
-// };  // prev 
 
 const updateEducationData = async function (req, res) {
   try {
@@ -138,27 +102,6 @@ const updateEducationData = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-
-// const getEducationByUserDetailsID = async (req, res) => {
-//   try {
-//     const educations = await educationModel.find().populate('userDetailsID');
-//     if (!educations) {
-//       return res.status(404).send({ status: false, message: 'projectData not found' });
-//     }
-//     const formattedProjects = educations.map((data) => ({
-//       ...data._doc,
-//       startYear: formatDate(data.startYear),
-//       endYear: formatDate(data.endYear),
-//       createdDate: formatDate(data.createdAt),
-//       updatedDate: formatDate(data.updatedAt),
-//     }));
-//     return res.status(200).send({ status: true, data: formattedProjects, message: 'Projects retrieved' });
-//   } catch (err) {
-//     res.status(500).send({ status: false, message: err.message });
-//   }
-// };//option
-
-
 const educationInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -166,29 +109,19 @@ const educationInformationByID = async function (req, res) {
     if (!educationData) {
       return res.status(404).send({ status: false, message: 'Education data not found' });
     }
-
-    const year = getYear(educationData.yearOfpassout);
-    const startYear = getYear(educationData.startDate);
-    const endYear = getYear(educationData.endDate);
-
+    const date=new Date(req.body.startYear);
+    const endDate=new Date(req.body.endYear);
     const formattedEducationData = {
       ...educationData._doc,
-      year: year,
-      startYear: startYear,
-      endYear: endYear,
-      createdDate: formatDate(educationData.createdAt),
-      updatedDate: formatDate(educationData.updatedAt),
-    };
+      startYear:""+date.getFullYear()+"-"+((1+date.getMonth())<10?"0"+(1+date.getMonth()):(1+date.getMonth()))+"-"+(date.getDate()<10?"0"+startYear.getDate():date.getDate()),
+      endYear:""+endDate.getFullYear()+"-"+((1+endDate.getMonth())<10?"0"+(1+endDate.getMonth()):(1+endDate.getMonth()))+"-"+(endDate.getDate()<10?"0"+endDate.getDate():endDate.getDate())
 
+    };
     return res.status(200).send({ status: true, data: formattedEducationData });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-function getYear(date) {
-  const formattedDate = new Date(date);
-  return formattedDate.getFullYear();
-}
 function formatDate(date) {
   const formattedDate = new Date(date);
   const day = String(formattedDate.getDate()).padStart(2, '0');
@@ -196,8 +129,6 @@ function formatDate(date) {
   const year = formattedDate.getFullYear();
   return `${day}/${month}/${year}`;
 }
-
-
 const deleteEducation = async function (req, res) {
   try {
     const id = req.params.id;
@@ -211,6 +142,7 @@ const deleteEducation = async function (req, res) {
   }
 };
 //***********************************************************************************************************/
+
 const experienceInfo = async function (req, res) {
   try {
     const experienceSchema = Joi.object({
@@ -222,24 +154,24 @@ const experienceInfo = async function (req, res) {
       location: Joi.string().required(),
       skills: Joi.array().items().required(),
       companyName: Joi.string().required(),
-      responsivePoC: Joi.array().items(
-        Joi.object({
-          name: Joi.string().required(),
-          position: Joi.string().required(),
-          email: Joi.string().required(),
-          contactPhone: Joi.string().allow(null, ''),
-          link: Joi.string().required()
-        })
-      ),
       startDate: Joi.string().required(),
       endDate: Joi.string().required(),
+      isDeleted: Joi.boolean().default(false),
     });
     const validationResult = experienceSchema.validate(req.body, { abortEarly: false });
     if (validationResult.error) {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     };
-    
-    const data = await experienceModel.create(req.body);
+
+    const date = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
+    const formattedExperienceData = {
+      ...req.body,
+      startDate: "" + date.getFullYear() + "-" + ((1 + date.getMonth()) < 10 ? "0" + (1 + date.getMonth()) : (1 + date.getMonth())) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()),
+      endDate: "" + endDate.getFullYear() + "-" + ((1 + endDate.getMonth()) < 10 ? "0" + (1 + endDate.getMonth()) : (1 + endDate.getMonth())) + "-" + (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()),
+    };
+
+    const data = await experienceModel.create(formattedExperienceData);
     if (data)
       return res.status(201).send({ status: true, data: data, message: 'Experience data created' });
 
@@ -249,30 +181,22 @@ const experienceInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 const updateExperienceData = async function (req, res) {
   try {
-    const { userDetailsID, jobStatus, jobRole, companyType, location, skills, companyName, responsivePoC, startDate, endDate, experienceType } = req.body;
+    const { id }= req.params;
 
     const experienceSchema = Joi.object({
       userDetailsID: Joi.string(),
       experienceType: Joi.string(),
       jobStatus: Joi.string(),
       jobRole: Joi.string(),
-      companyType: Joi.string().valid("MNC", "Start-Ups", "Government", "Service-Based", "Product-Based"),
+      companyType: Joi.string(),
       location: Joi.string(),
       skills: Joi.array().items(Joi.string()),
       companyName: Joi.string(),
-      responsivePoC: Joi.array().items(
-        Joi.object({
-          name: Joi.string().required(),
-          position: Joi.string().required(),
-          email: Joi.string().required(),
-          contactPhone: Joi.string().allow(null, ''),
-          link: Joi.string().required()
-        })
-      ),
-      startDate: Joi.string().required(),
-      endDate: Joi.string().required(),
+      startDate: Joi.string(),
+      endDate: Joi.string(),
     });
 
 
@@ -280,28 +204,21 @@ const updateExperienceData = async function (req, res) {
     if (validationResult.error) {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     }
+    const date = new Date(req.body.startDate);
+    const endDate = new Date(req.body.endDate);
+    const formattedExperienceData = {
+      ...req.body,
+      startDate: "" + date.getFullYear() + "-" + ((1 + date.getMonth()) < 10 ? "0" + (1 + date.getMonth()) : (1 + date.getMonth())) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate()),
+      endDate: "" + endDate.getFullYear() + "-" + ((1 + endDate.getMonth()) < 10 ? "0" + (1 + endDate.getMonth()) : (1 + endDate.getMonth())) + "-" + (endDate.getDate() < 10 ? "0" + endDate.getDate() : endDate.getDate()),
+    };
 
-    const id = req.params.id;
-    let experienceData = await experienceModel.findById(id);
-    if (!experienceData) {
+   
+    const data = await experienceModel.findByIdAndUpdate(id,formattedExperienceData, { new: true });
+    if (!data) {
       return res.status(404).send({ status: false, message: 'Experience data not found' });
     }
 
-    // Update experience data
-    experienceData.userDetailsID = userDetailsID || experienceData.userDetailsID;
-    experienceData.jobStatus = jobStatus || experienceData.jobStatus;
-    experienceData.jobRole = jobRole || experienceData.jobRole;
-    experienceData.companyType = companyType || experienceData.companyType;
-    experienceData.location = location || experienceData.location;
-    experienceData.skills = skills || experienceData.skills;
-    experienceData.companyName = companyName || experienceData.companyName;
-    experienceData.responsivePoC = responsivePoC || experienceData.responsivePoC;
-    experienceData.startDate = startDate || experienceData.startDate;
-    experienceData.endDate = endDate || experienceData.endDate;
-    experienceData.experienceType = experienceType || experienceData.experienceType;
-
-    const updatedData = await experienceData.save();
-    return res.status(200).send({ status: true, data: updatedData, message: 'Experience data updated' });
+    return res.status(200).send({ status: true, data: data, message: 'Experience data updated' });
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
@@ -344,7 +261,6 @@ const deleteExperience = async function (req, res) {
 
 // ********************************************************************************************************************
 
-// Create a project
 const projectInfo = async (req, res) => {
   try {
     const projectSchema = Joi.object({
@@ -360,69 +276,19 @@ const projectInfo = async (req, res) => {
       url: Joi.string(),
       isDeleted: Joi.boolean().default(false)
     });
-
     const validationResult = projectSchema.validate(req.body, { abortEarly: false });
     if (validationResult.error) {
       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
     }
-
     const data = await projectsModel.create(req.body);
     return res.status(201).send({ status: true, data: data, message: 'Project data created' });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
-
-// Get all projects
-// const getProjectByUserDetailsID = async (req, res) => {
-//   try {
-//     const projects = await projectsModel.find().populate('userDetailsID');
-//     if (!projects) {
-//       return res.status(404).send({ status: false, message: 'projectData not found' });
-//     }
-//     const formattedProjects = projects.map((data) => ({
-//       ...data._doc,
-//       startDate: formatDate(data.startDate),
-//       endDate: formatDate(data.endDate),
-//       createdDate: formatDate(data.createdAt),
-//       updatedDate: formatDate(data.updatedAt),
-//     }));
-//     return res.status(200).send({ status: true, data: formattedProjects, message: 'Projects retrieved' });
-//   } catch (err) {
-//     res.status(500).send({ status: false, message: err.message });
-//   }
-// };//prev
-const getProjectByUserDetailsID = async (req, res) => {
-  try {
-    const projects = await projectsModel.find().populate('userDetailsID');
-    if (!projects) {
-      return res.status(404).send({ status: false, message: 'projectData not found' });
-    }
-    const formattedProjects = projects.map((data) => ({
-      ...data._doc,
-      startDate: formatDate(data.startDate),
-      endDate: formatDate(data.endDate),
-      createdDate: formatDate(data.createdAt),
-      updatedDate: formatDate(data.updatedAt),
-    }));
-
-    // Modify the startYear and endYear fields in each project
-    const projectsWithFormattedDates = formattedProjects.map((project) => ({
-      ...project,
-      startYear: project.startDate,
-      endYear: project.endDate,
-    }));
-
-    return res.status(200).send({ status: true, data: projectsWithFormattedDates, message: 'Projects retrieved' });
-  } catch (err) {
-    res.status(500).send({ status: false, message: err.message });
-  }
-};
-
 const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
-
     const projectSchema = Joi.object({
       userDetailsID: Joi.string(),
       skills: Joi.array().items(Joi.string()),
@@ -461,40 +327,30 @@ const updateProject = async (req, res) => {
   }
 };
 
-// // Update a project
-// const updateProject = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+const projectInformationByID = async function (req, res) {
+  try {
+    const id = req.params.id;
+    const projectData = await projectsModel.findOne({ _id: id });
+    if (!projectData) {
+      return res.status(404).send({ status: false, message: 'projectData not found' });
+    }
+    const date=new Date(projectData.startDate);
+    const endDate=new Date(projectData.endDate);
+    const formattedProjectData = {
+      ...projectData._doc,
+      startDate:""+date.getFullYear()+"-"+((1+date.getMonth())<10?"0"+(1+date.getMonth()):(1+date.getMonth()))+"-"+(date.getDate()<10?"0"+date.getDate():date.getDate()),
+      endDate:""+endDate.getFullYear()+"-"+((1+endDate.getMonth())<10?"0"+(1+endDate.getMonth()):(1+endDate.getMonth()))+"-"+(endDate.getDate()<10?"0"+endDate.getDate():endDate.getDate()),
+      createdDate: formatDate(projectData.createdAt),
+      updatedDate: formatDate(projectData.updatedAt),
+    };
+    res.status(200).send({ status: true, data: formattedProjectData });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
+};
 
-//     const projectSchema = Joi.object({
-//       userDetailsID: Joi.string(),
-//       skills: Joi.array().items(Joi.string()),
-//       projectType: Joi.string(),
-//       projectTitle: Joi.string(),
-//       startDate: Joi.string(),
-//       endDate: Joi.string(),
-//       organizationName: Joi.string(),
-//       description: Joi.string(),
-//       url: Joi.string(),
-//       isDeleted: Joi.boolean()
-//     });
+// *****************************************************************************************************
 
-//     const validationResult = projectSchema.validate(req.body, { abortEarly: false });
-//     if (validationResult.error) {
-//       return res.status(400).send({ status: false, message: validationResult.error.details[0].message });
-//     }
-
-//     const data = await projectsModel.findByIdAndUpdate(id, req.body, { new: true });
-//     if (!data) {
-//       return res.status(404).send({ status: false, message: 'Project not found' });
-//     }
-//     return res.status(200).send({ status: true, data: data, message: 'Project data updated' });
-//   } catch (err) {
-//     res.status(500).send({ status: false, message: err.message });
-//   }
-// };//prev
-
-// Delete a project
 const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -509,30 +365,7 @@ const deleteProject = async (req, res) => {
 };
 
 
-// const projectInformationByID = async function (req, res) {
-//   try {
-//     const id = req.params.id;
-//     const projectData = await projectsModel.findOne({ _id: id });
-//     if (!projectData) {
-//       return res.status(404).send({ status: false, message: 'projectData not found' });
-//     }
-//     const date=new Date(projectData.startDate);
-//     const endDate=new Date(projectData.endDate);
-//     const formattedProjectData = {
-//       ...projectData._doc,
-//       startDate:""+date.getFullYear()+"-"+((1+date.getMonth())<10?"0"+(1+date.getMonth()):(1+date.getMonth()))+"-"+(date.getDate()<10?"0"+date.getDate():date.getDate()),
-//       endDate:""+endDate.getFullYear()+"-"+((1+endDate.getMonth())<10?"0"+(1+endDate.getMonth()):(1+endDate.getMonth()))+"-"+(endDate.getDate()<10?"0"+endDate.getDate():endDate.getDate()),
-//       createdDate: formatDate(projectData.createdAt),
-//       updatedDate: formatDate(projectData.updatedAt),
-//     };
-//     res.status(200).send({ status: true, data: formattedProjectData });
-//   } catch (err) {
-//     res.status(500).send({ status: false, message: err.message });
-//   }
-// };//prev 
 //********************************************************************************************************************
-
-
 
 const skillsInfo = async function (req, res) {
   try {
@@ -553,7 +386,6 @@ const skillsInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message })
   }
 };
-
 
 const updateSkillsData = async function (req, res) {
   try {
@@ -648,11 +480,11 @@ const personalInfo = async function (req, res) {
   try {
     const id = req.params.id
     const user = await userModel.find({ _id: id })
-    const educationData = await educationModel.find({ userDetailsID: id })
-    const experienceData = await experienceModel.find({ userDetailsID: id })
+    const educationData = await educationModel.find({ userDetailsID: id  ,isDeleted : false})
+    const experienceData = await experienceModel.find({ userDetailsID: id  , isDeleted : false})
     const skills = await skillsModel.find({ userDetailsID: id })
-    const userprofile = await userprofileModel.find({ userDetailsID: id })
-    const projects = await projectsModel.find({ userDetailsID: id })
+    const userprofile = await userprofileModel.find({ userDetailsID: id ,isDeleted : false })
+    const projects = await projectsModel.find({ userDetailsID: id ,isDeleted : false })
     const data = { user, educationData, experienceData, skills, userprofile, projects }
     if (!data) {
       return res.status(404).send({ status: false, message: 'Personal Data data not found' });
@@ -664,4 +496,4 @@ const personalInfo = async function (req, res) {
 };
 
 
-module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, getProjectByUserDetailsID, updateProject, projectInfo, personalInfo };
+module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, projectInformationByID, updateProject, projectInfo, personalInfo };

@@ -38,9 +38,8 @@ const projectsSchema = new mongoose.Schema(
         },
         isDeleted:{
             type: Boolean,
-            Default: false
+            default: false
           },
-
     },
     {
         timestamps: true

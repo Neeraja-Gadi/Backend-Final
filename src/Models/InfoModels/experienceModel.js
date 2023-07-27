@@ -37,31 +37,31 @@ const experienceSchema = new Schema(
       type: String,
       required: true
     },
-    responsivePoC: {
-      type: [{
-        name: {
-          type: String,
-          required: true
-        },
-        position: {
-          type: String,
-          required: true
-        },
-        email: {
-          type: String,
-          required: true
-        },
-        contactPhone: {
-          type: String,
-          default: null
-        },
-        link: {
-          type: String,
-          required: true
-        }
-      }],
-      required: true
-    },
+    // responsivePoC: {
+    //   type: [{
+    //     name: {
+    //       type: String,
+    //       required: true
+    //     },
+    //     position: {
+    //       type: String,
+    //       required: true
+    //     },
+    //     email: {
+    //       type: String,
+    //       required: true
+    //     },
+    //     contactPhone: {
+    //       type: String,
+    //       default: null
+    //     },
+    //     link: {
+    //       type: String,
+    //       required: true
+    //     }
+    //   }],
+    //   required: true
+    // },
     startDate: {
       type: String,
       required: true,
@@ -70,7 +70,11 @@ const experienceSchema = new Schema(
       type: String,
       required: true
       
-    }
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true

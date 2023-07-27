@@ -721,7 +721,6 @@ async function recruiterSearch(req, res) {
 // };
 
 
-
 // const PREP = async function (req, res) {
 //   try {
 //     const ID = req.params.id; // Assuming params_id is the ID of the job post
@@ -876,9 +875,9 @@ const PREP = async function (req, res) {
 
     const { recruiterPlan, jobRole, highestEducation, primarySkills } = jobPost;
 
-    const allUsers = await userModel.find({ recruiter: false, isDeleted: false }).lean();
+    const allUsers = await userModel.find({ recruiter: false}).lean();
 
-    const userDetailsArray = []; // Array to store all the userDetails objects
+    const userDetailsArray = []; 
 
     await Promise.all(
       allUsers.map(async (user) => {
@@ -890,7 +889,7 @@ const PREP = async function (req, res) {
         const preferenceDetails = await preferenceModel.findOne({ userDetailsID: user._id }).lean();
 
         if (!userProfile||!skillsDetails) {
-          // Skip the current user and continue with the next iteration
+
           return;
         }
 
@@ -1002,6 +1001,7 @@ const PREP = async function (req, res) {
     res.status(500).send({ status: false, error: error.message });
   }
 };
+
 
 module.exports = {
   recruiterInformation, recruiterInfo, updateRecruiterData, recruiterSearch, PREP,

@@ -30,15 +30,15 @@ const educationSchema = new mongoose.Schema(
       required: true,
     },
     yearOfpassout: {
-      type: Date,
+      type: String,
       required: true
     },
-    startYear: {//changes
-      type: Date,
+    startYear: {
+      type: String,
       required: true,
     },
-    endYear: {//changes
-      type: Date,
+    endYear: {
+      type: String,
       required: true,
     },
     isDeleted: {
