@@ -93,6 +93,7 @@ router.get('/PREP/:id', recruiterController.PREP);//it is finding right fit pool
 router.get('/getRecruiterPlan/:userDetailsID', recruiterController.getRecruiterPlan);
 router.get('/PlanWithDetails/:userDetailsID/:id', recruiterController.PlanWithJobPostInformation);
 router.get("/personal/:id", infoController.personalInfo);//get personal info from req.params.id
+router.get('/hirankandpool/:id',infoController.findUsersWithHiRankAndPool)
 // router.get('/getUserDetails/:id',recruiterController.getUserDetailsWithMatchedJobPost);
 
 // ******************************login_&_Resister***********************************************************

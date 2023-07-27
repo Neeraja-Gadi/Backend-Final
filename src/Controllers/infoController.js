@@ -4,6 +4,10 @@ const projectsModel = require("../Models/InfoModels/projectsModel.js");
 const userprofileModel = require("../Models/userprofileModel");
 const skillsModel = require("../Models/InfoModels/skillsModel.js");
 const userModel = require("../Models/userModel.js");
+const preferenceModel = require("../Models/preferenceModel");
+const { AuthorityPoints, EducationLevelPoints, ExperienceLevelPoints, ProjectTypePoints, ExperienceTypePoints } = require("../Constrains/authority.js");
+
+
 const Joi = require('joi');
 // ********************************************************************************************************************
 
@@ -495,5 +499,56 @@ const personalInfo = async function (req, res) {
   }
 };
 
+const findUsersWithHiRankAndPool = async function (req, res) {
+  try {
+    const userID = req.params.id; // Assuming req.params.userId is the ID of the user
 
-module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, projectInformationByID, updateProject, projectInfo, personalInfo };
+    const user = await userModel.findById(userID);
+    if (!user) {
+      return res.status(404).send({ status: false, error: 'User not found' });
+    }
+
+    const educationDetails = await educationModel.find({ userDetailsID: user._id ,isDeleted : false})
+    const preferenceDetails = await preferenceModel.findOne({ userDetailsID: user._id })
+    const projectDetails = await projectsModel.find({ userDetailsID: user._id ,isDeleted : false })
+    const experienceDetails = await experienceModel.find({ userDetailsID: user._id  ,isDeleted : false})
+
+    if (!preferenceDetails || !educationDetails || !projectDetails || !experienceDetails) {
+      return res.status(404).send({ status: false, error: 'User details not found' });
+    }
+
+    const highestEducationPoints = preferenceDetails?.highestEducation ? EducationLevelPoints[preferenceDetails.highestEducation] || 0 : 0;
+    const experienceLevelPoints = preferenceDetails?.experienceOverall ? ExperienceLevelPoints[preferenceDetails.experienceOverall] || 0 : 0;
+    const projectTypePoints = projectDetails.length > 0 ? ProjectTypePoints[projectDetails[0].projectType] || 0 : 0;
+    const experienceTypePoints = experienceDetails.length > 0 ? ExperienceTypePoints[experienceDetails[0].experienceType] || 0 : 0;
+    const authorityPoints = educationDetails.length > 0 ? AuthorityPoints[educationDetails[0].authority] || 0 : 0;
+
+    const totalScore = highestEducationPoints + experienceLevelPoints + projectTypePoints + experienceTypePoints + authorityPoints;
+
+    const advancePool = ['Central Govt', 'State Govt', 'Deemed University', 'Private'];
+    const proficientPool = ['IIT', 'IIM', 'IISc', 'NIT'];
+
+    let Talent_Pool;
+
+    if (
+      advancePool.includes(educationDetails[0].authority) &&
+      ['Fresher', '1 Year', '2 Year'].includes(preferenceDetails.experienceOverall)
+    ) {
+      Talent_Pool = 'Advance';
+    } else if (
+      proficientPool.includes(educationDetails[0].authority) &&
+      ['4 Year', '5 Year', '3 Year'].includes(preferenceDetails.experienceOverall)
+    ) {
+      Talent_Pool = 'Proficient';
+    } else {
+      Talent_Pool = 'Expert';
+    }
+
+    res.status(200).send({ status: true, data: { HiRank: totalScore, Talent_Pool: Talent_Pool }, message: 'Success' });
+  } catch (error) {
+    res.status(500).send({ status: false, error: error.message });
+  }
+};
+
+
+module.exports = { educationInfo, educationInformationByID, deleteEducation, updateEducationData, experienceInformationByID, deleteExperience, experienceInfo, updateExperienceData, skillsInformationByID, skillsInfo, updateSkillsData, deleteSkills, deleteProject, projectInformationByID, updateProject, projectInfo, personalInfo  ,findUsersWithHiRankAndPool };
