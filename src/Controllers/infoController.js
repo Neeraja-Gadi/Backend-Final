@@ -227,6 +227,7 @@ const updateExperienceData = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
 const experienceInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -290,6 +291,7 @@ const projectInfo = async (req, res) => {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
