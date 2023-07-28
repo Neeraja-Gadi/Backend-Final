@@ -264,6 +264,7 @@ const register = async function (req, res) {
   }
 };
 //**************************************************************************************************************
+
 const sendToken = async function (req, res) {
   const { email } = req.body;
   let userDB = await userModel.findOne({ email });
