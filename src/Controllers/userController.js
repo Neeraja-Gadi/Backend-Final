@@ -3,6 +3,7 @@ const educationModel = require('../Models/InfoModels/educationModel');
 const experienceModel = require('../Models/InfoModels/experienceModel');
 const skillsModel = require('../Models/InfoModels/skillsModel');
 const userprofileModel = require('../Models/userprofileModel');
+const preferenceModel = require("../Models/preferenceModel");
 const jobModel = require('../Models/jobModel');
 const bcrypt = require("bcrypt");
 const { sendMail } = require("../Middlewares/sendMail");
