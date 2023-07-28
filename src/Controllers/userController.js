@@ -284,7 +284,7 @@ const sendToken = async function (req, res) {
     },
     { returnNewDocument: true }
   );
-  let link = `http://localhost:3000/resetPassword/${userDB._id}/${token}`;
+  let link = `https://hiclousia.com/resetPassword/${userDB._id}/${token}`;
   // let link = `http://localhost:3000/resetPassword/${userDB._id}/${token}`;
   await sendMail(userDB.email, "Password Reset App - Reset your password", `Hello! ${email}, You have requested to reset your password.
   Please click the following link to reset your password: ${link}`);
@@ -296,6 +296,8 @@ const sendToken = async function (req, res) {
 
 
 // **************************************************************************
+
+
 const verifyAndUpdatePassword =  async function(req, res) {
   const { userid, token } = req.params;
   let userDB = await userModel.findOne({ _id: userid });
