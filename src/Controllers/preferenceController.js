@@ -72,7 +72,7 @@ const updatePreference = async (req, res) => {
 
 const fetchPreference = async (req, res) => {
   try {
-    const preference = await talentModel.findById(req.params.id);
+    const preference = await talentModel.findOne({userDetailsID:req.params.id});
     if (!preference) {
       return res.status(404).send({ status: false, message: 'Talent preference not found' });
     }
