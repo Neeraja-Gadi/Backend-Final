@@ -1014,11 +1014,11 @@ const PREP = async function (req, res) {
       return res.status(404).send({ status: false, error: 'Job post not found' });
     }
 
-    const { recruiterPlan, jobRole, highestEducation, primarySkills } = jobPost;
+    const {  jobRole, highestEducation } = jobPost;
 
     const allUsers = await userModel.find({ recruiter: false, isDeleted: false }).lean();
 
-    const userDetailsArray = []; // Array to store all the userDetails objects
+    const userDetailsArray = []; 
 
     await Promise.all(
       allUsers.map(async (user) => {
@@ -1029,7 +1029,7 @@ const PREP = async function (req, res) {
         const userProfile = await userprofileModel.findOne({ userDetailsID: user._id }).lean();
         const preferenceDetails = await preferenceModel.findOne({ userDetailsID: user._id }).lean();
 
-        if (!userProfile || !skillsDetails) {
+        if (!userProfile || !skillsDetails ) {
           // Skip the current user and continue with the next iteration
           return;
         }

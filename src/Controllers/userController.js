@@ -233,7 +233,9 @@ const getUserProfileById = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 // ********************************************************************************************************************
+
 const register = async function (req, res) {
   try {
     const { firstName, lastName, email, recruiter, password } = req.body;
@@ -263,6 +265,7 @@ const register = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 //**************************************************************************************************************
 
 const sendToken = async function (req, res) {
@@ -295,9 +298,7 @@ const sendToken = async function (req, res) {
   });
 }
 
-
-// **************************************************************************
-
+// *********************************************************************************************************************************
 
 const verifyAndUpdatePassword =  async function(req, res) {
   const { userid, token } = req.params;
@@ -337,7 +338,8 @@ const verifyAndUpdatePassword =  async function(req, res) {
   }
   return  res.status(400).send({ Error: "Invalid Link"});
 }
-// **************************************************************************
+
+// *********************************************************************************************************************************
 
 const loginUser = async function (req, res) {
   try {
@@ -362,6 +364,7 @@ const loginUser = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
 //*********************************single image update*********************************************************
 // const SingleImageUpdate = async function (req, res) {
 //   try {
@@ -443,7 +446,9 @@ const SingleImageUpdate = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
-// **************************************************************************************************************
+
+// *********************************************************************************************************************************
+
 const findJobMatches = async function (req, res) {
   try {
     const userId = req.params.id; //USERID
@@ -494,6 +499,49 @@ const findJobMatches = async function (req, res) {
   }
 };
 
+// *********************************************************************************************************************************
+
+// async function getSingleImage(req, res) {
+
+//   const id = req.params.id;
+
+//   try {
+//     // Fetch the document from MongoDB
+//     const userDetails = await userprofileModel.findOne({ userDetailsID: id });
+//     if (!userDetails || !userDetails.profileLink) {
+//       return res.status(404).json({ message: "User details not found or profile image not available" });
+//     }
+
+//     const { key } = userDetails.profileLink;
+
+//     // Retrieve the image from S3 bucket
+//     const params = {
+//       Bucket: process.env.AWS_BUCKET_NAME,
+//       Key: key
+//     };
+//     const data = await s3Client.send(new GetObjectCommand(params));
+//     const stream = Readable.from(data.Body);
+
+//     // Determine the content type based on the file extension
+//     const contentType = getContentType(key);
+//     if (!contentType) {
+//       return res.status(500).json({ message: "Invalid image file format" });
+//     }
+
+//     // Set the content type header
+//     res.set("Content-Type", contentType);
+
+//     // Send the image data as the response
+//     stream.pipe(res);
+//   } catch (error) {
+//     console.error("Error retrieving profile image:", error);
+//     res.status(500).json({ message: "Error retrieving profile image" });
+//   }
+// }
+
+const { promisify } = require('util');
+const stream = require('stream');
+const pipeline = promisify(stream.pipeline); 
 async function getSingleImage(req, res) {
   const id = req.params.id;
   try {
@@ -502,7 +550,6 @@ async function getSingleImage(req, res) {
     if (!userDetails || !userDetails.profileLink) {
       return res.status(404).json({ message: "User details not found or profile image not available" });
     }
-
     const { key } = userDetails.profileLink;
 
     // Retrieve the image from S3 bucket
@@ -511,7 +558,6 @@ async function getSingleImage(req, res) {
       Key: key
     };
     const data = await s3Client.send(new GetObjectCommand(params));
-    const stream = Readable.from(data.Body);
 
     // Determine the content type based on the file extension
     const contentType = getContentType(key);
@@ -519,18 +565,23 @@ async function getSingleImage(req, res) {
       return res.status(500).json({ message: "Invalid image file format" });
     }
 
-    // Set the content type header
-    res.set("Content-Type", contentType);
+    // Create a buffer to store the image data
+    const chunks = [];
+    data.Body.on('data', (chunk) => chunks.push(chunk));
+    data.Body.on('end', () => {
+      // Concatenate all chunks into a single buffer
+      const imageData = Buffer.concat(chunks);
+      // Set the content type header
+      res.set("Content-Type", contentType);
+      // Send the image data as the response
+      res.status(200).send({ status: true, data:imageData , message: "Profile image found successfully" });
+    });
 
-    // Send the image data as the response
-    stream.pipe(res);
   } catch (error) {
     console.error("Error retrieving profile image:", error);
-    res.status(500).json({ message: "Error retrieving profile image" });
+    res.status(500).send({ status: false, message: error.message });
   }
-}
-
-// Function to determine the content type based on the file extension
+};
 function getContentType(filename) {
   const extension = path.extname(filename).toLowerCase();
   switch (extension) {
@@ -545,6 +596,23 @@ function getContentType(filename) {
   }
 }
 
+// // Function to determine the content type based on the file extension
+// function getContentType(filename) {
+//   const extension = path.extname(filename).toLowerCase();
+//   switch (extension) {
+//     case ".jpg":
+//     case ".jpeg":
+//       return "image/jpeg";
+//     case ".png":
+//       return "image/png";
+//     // Add more cases for other image formats if needed
+//     default:
+//       return null; // Invalid file format
+//   }
+// }
+
+
+// *********************************************************************************************************************************
 
 const updateUserIsApplied = async (req, res) => {
   try {
@@ -568,10 +636,12 @@ const updateUserIsApplied = async (req, res) => {
   }
 };
 
-// ***********************************************************************************
+// *********************************************************************************************************************************
 
 const TalentRecommendations = async function (req, res) {
+
   try {
+
     const userId = req.params.id; // USERID
 
     // Fetch user details
@@ -590,17 +660,18 @@ const TalentRecommendations = async function (req, res) {
       .findOne({ userDetailsID: userDetails._id })
       .lean();
 
-    // Fetch user's skills details
-    const skillsDetails = await skillsModel
-      .findOne({ userDetailsID: userDetails._id })
-      .lean();
-
+    // // Fetch user's skills details
+    // const skillsDetails = await skillsModel
+    //   .findOne({ userDetailsID: userDetails._id })
+    //   .lean();
+    
     // Fetch user's profile details
     const userProfileDetails = await userprofileModel
       .findOne({ userDetailsID: userDetails._id })
       .lean();
 
     // Convert userProfileDetails.location to string
+
     const locationString = userProfileDetails.location.toString();
 
     // Prepare search query for job matching
@@ -623,7 +694,5 @@ const TalentRecommendations = async function (req, res) {
   }
 };
 
-module.exports = { register, loginUser, userGeneral, 
-  deleteuserProfile,getSingleImage , updateUserIsApplied ,
-  findJobMatches, updateuserProfile, getUserProfileById, SingleImageUpdate, 
-  sendToken, verifyAndUpdatePassword, TalentRecommendations,deleteProfile };
+module.exports = { register, loginUser, userGeneral,  deleteuserProfile,getSingleImage , updateUserIsApplied ,findJobMatches, 
+  updateuserProfile, getUserProfileById, SingleImageUpdate,  sendToken, verifyAndUpdatePassword, TalentRecommendations,deleteProfile };
