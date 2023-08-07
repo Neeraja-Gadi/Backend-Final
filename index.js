@@ -43,10 +43,12 @@ const dotenv = require("dotenv");
  const mongoose = require('mongoose');
 const cors = require('cors');
 dotenv.config();
+
 const route = require('./src/Routes/router');
 const awsController= require("./src/Controllers/awsController")
 
 app.use( cors());
+
 
 // // DATABASE CONNECTION
  mongoose
@@ -60,12 +62,13 @@ app.use( cors());
          console.log('MongoDB Is Connected To Hiclousia');
      })
      .catch((err) => console.log(err));
- // PORT
 
 app.use(express.json());
    app.use('/', route);
+
 // PORT
 const port = process.env.PORT || 8000;
+
 app.listen(port, () => {
     console.log(`server running On port ${port}`);
 });
