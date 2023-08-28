@@ -21,15 +21,19 @@ mongoose
     })
     .catch((err) => console.log(err));
 
-app.use(
-    cors({
-      origin: 'http://hiclousia.com',
-      methods: ['GET', 'POST', 'PUT', 'DELETE' , "PATCH"],
-    })
-  );
+    app.use(cors())
+
+// app.use(
+//     cors({
+//       origin: 'http://hiclousia.com',
+//       methods: ['GET', 'POST', 'PUT', 'DELETE' , "PATCH"],
+//     })
+//   );
   
 app.use(express.json());
 app.use('/', route);
+
+
 // PORT
 const port = process.env.PORT || 8000;
 app.listen(port, () => {

@@ -9,6 +9,7 @@ const { AuthorityPoints, EducationLevelPoints, ExperienceLevelPoints, ProjectTyp
 
 
 const Joi = require('joi');
+
 // ********************************************************************************************************************
 
 const educationInfo = async function (req, res) {
@@ -51,6 +52,7 @@ const educationInfo = async function (req, res) {
   }
 };
 
+
 const updateEducationData = async function (req, res) {
   try {
     const educationSchema = Joi.object({
@@ -63,6 +65,7 @@ const updateEducationData = async function (req, res) {
       yearOfpassout: Joi.string(),
       startYear: Joi.string(),
       endYear: Joi.string(),
+
     });
 
     const validationResult = educationSchema.validate(req.body, {
@@ -106,6 +109,8 @@ const updateEducationData = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+
 const educationInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -126,13 +131,17 @@ const educationInformationByID = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
+
 function formatDate(date) {
   const formattedDate = new Date(date);
   const day = String(formattedDate.getDate()).padStart(2, '0');
   const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
   const year = formattedDate.getFullYear();
   return `${day}/${month}/${year}`;
-}
+} ;
+
+
 const deleteEducation = async function (req, res) {
   try {
     const id = req.params.id;
@@ -145,6 +154,7 @@ const deleteEducation = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
 //***********************************************************************************************************/
 
 const experienceInfo = async function (req, res) {
@@ -185,6 +195,7 @@ const experienceInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 
 const updateExperienceData = async function (req, res) {
   try {
@@ -228,6 +239,7 @@ const updateExperienceData = async function (req, res) {
   }
 };
 
+
 const experienceInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -250,6 +262,7 @@ const experienceInformationByID = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
 
 const deleteExperience = async function (req, res) {
   try {
@@ -333,6 +346,7 @@ const updateProject = async (req, res) => {
   }
 };
 
+
 const projectInformationByID = async function (req, res) {
   try {
     const id = req.params.id;
@@ -355,6 +369,7 @@ const projectInformationByID = async function (req, res) {
   }
 };
 
+
 // *****************************************************************************************************
 
 const deleteProject = async (req, res) => {
@@ -369,6 +384,7 @@ const deleteProject = async (req, res) => {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 
 
 //********************************************************************************************************************
@@ -392,6 +408,7 @@ const skillsInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message })
   }
 };
+
 
 const updateSkillsData = async function (req, res) {
   try {
@@ -480,7 +497,7 @@ const deleteSkills = async function (req, res) {
   }
 };
 
-// ********************************************************************************************************************
+// ***********************************************************************************************************************************
 
 const personalInfo = async function (req, res) {
   try {
@@ -500,6 +517,7 @@ const personalInfo = async function (req, res) {
     res.status(500).send({ status: false, message: err.message })
   }
 };
+
 
 const findUsersWithHiRankAndPool = async function (req, res) {
   try {

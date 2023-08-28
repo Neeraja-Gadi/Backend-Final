@@ -15,6 +15,7 @@ const revenueRModel = require('../Models/revenueRModel');
 
 // Import the RecruiterPlan model
 //********recruiterInfo*******************recruiterInfo********************recruiterInfo**********************/
+
 const recruiterInfo = async function (req, res) {
   try {
     const recruiterSchema = Joi.object({
@@ -151,14 +152,12 @@ const getRecruiterPlan = async (req, res) => {
     const formattedPlans = subscriptionPlans.map(plan => {
       const endDate = new Date(plan.start);
       endDate.setDate(endDate.getDate() + plan.duration);
-
       const remainingDays = Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24));
 
       // Update the plan's status and renewable based on remaining days
       if (remainingDays < 0) {
         plan.status = false;
       }
-
       return {
         id:plan._id ,
         status: plan.status,
@@ -192,7 +191,9 @@ const getRecruiterPlan = async (req, res) => {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
 // post api for plan***********************************************************************************************
+
 const RevenuePlan = async function (req, res) {
   try {
     const { userDetailsID, recruiterPlan, jobPostno, start } = req.body;
@@ -1002,8 +1003,6 @@ async function recruiterSearch(req, res) {
 //   }
 // };
 
-
-
 const PREP = async function (req, res) {
   try {
     const ID = req.params.id; // Assuming params_id is the ID of the job post
@@ -1090,9 +1089,8 @@ const PREP = async function (req, res) {
           const primarySkillPercentageMatch = (primarySkillMatchCount / requiredPrimarySkills.length) * 100;
           userDetails.primarySkillPercentageMatch = primarySkillPercentageMatch;
         }
-
+        
         // ...Next code
-
 
         userDetailsArray.push(userDetails);
       })

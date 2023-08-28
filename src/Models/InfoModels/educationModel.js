@@ -1,13 +1,14 @@
 
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+
 const educationSchema = new mongoose.Schema(
   {
     userDetailsID: {
       type: ObjectId,
       ref: "user",
     },
-    degreeName: {//changes
+    degreeName: {
       type: String,
       required: true,
     },
