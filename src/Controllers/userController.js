@@ -298,7 +298,6 @@ const sendToken = async function (req, res) {
 
 // **************************************************************************
 
-
 const verifyAndUpdatePassword =  async function(req, res) {
   const { userid, token } = req.params;
   let userDB = await userModel.findOne({ _id: userid });
@@ -443,7 +442,9 @@ const SingleImageUpdate = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 };
+
 // **************************************************************************************************************
+
 const findJobMatches = async function (req, res) {
   try {
     const userId = req.params.id; //USERID
@@ -570,6 +571,7 @@ const updateUserIsApplied = async (req, res) => {
 
 // ***********************************************************************************
 
+
 const TalentRecommendations = async function (req, res) {
   try {
     const userId = req.params.id; // USERID
@@ -623,7 +625,10 @@ const TalentRecommendations = async function (req, res) {
   }
 };
 
+
+
+
 module.exports = { register, loginUser, userGeneral, 
   deleteuserProfile,getSingleImage , updateUserIsApplied ,
   findJobMatches, updateuserProfile, getUserProfileById, SingleImageUpdate, 
-  sendToken, verifyAndUpdatePassword, TalentRecommendations,deleteProfile };
+  sendToken, verifyAndUpdatePassword, TalentRecommendations,deleteProfile   };

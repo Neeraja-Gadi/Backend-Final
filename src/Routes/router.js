@@ -62,8 +62,11 @@ router.patch('/updateUserIsApplied/:id', userController.updateUserIsApplied);
 router.post('/talentPreference', talentController.createPreference);
 router.put("/updatePreference/:id", talentController.updatePreference);
 router.get("/fetchPreference/:id", talentController.fetchPreference);//get Talent preference info from req.params.id
+router.get("/allUserPreference/:id", talentController.getAllUserPreferencesById);
 router.delete("/deletePreference/:id", talentController.deletePreference);
 router.get('/searchJobsByPreferences/:userDetailsID', talentController.searchJobsByPreferences);
+router.get('/showJobsByPreferenceID/:id', talentController.showJobsByPreferenceID);
+
 
 // **********************************Recuiter_Details*******************************************************
 

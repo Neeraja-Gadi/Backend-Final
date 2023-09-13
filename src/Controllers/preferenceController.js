@@ -32,6 +32,7 @@ const createPreference = async (req, res) => {
   }
 };
 // ***********************************************************************************************************************
+
 const updatePreference = async (req, res) => {
   try {
     const schema = Joi.object({
@@ -67,6 +68,7 @@ const updatePreference = async (req, res) => {
     return res.status(500).send({ status: false, message: error.message });
   }
 };
+//onAir API
 
 // ***********************************************************************************************************************
 
@@ -141,12 +143,79 @@ const searchJobsByPreferences = async (req, res) => {
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });
   }
+}; 
+//ONAIR 
+
+const getAllUserPreferencesById = async function (req, res) {
+  try {
+    const id = req.params.id; //userid
+
+    const userPreferences = await talentModel.find({userDetailsID:id});
+
+    if (!userPreferences) {
+      return res.status(404).send({ status: false, message: 'User profile not found' });
+    }
+
+    return res.status(200).send({ status: true, data: userPreferences, message: 'User userPreferences retrieved successfully' });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
 };
+//new
+
+
+
+const showJobsByPreferenceID = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    // Find the user's preferences based on _id
+    const userPreferences = await talentModel.findOne({
+      _id: id
+    });
+
+    if (!userPreferences) {
+      return res.status(404).send({ status: false, message: 'Preference data not found' });
+    }
+
+    // Extract preferences data
+    const {
+      highestEducation,
+      jobNature,
+      jobRole,
+      city,
+      sector,
+      location,
+      skills,
+      experienceOverall,
+    } = userPreferences;
+
+    const matchingJobs = await jobModel.find({
+      $or: [
+        { highestEducation: { $in: highestEducation } },
+        { jobNature: { $in: jobNature } },
+        { jobRole: { $in: jobRole } },
+        { location: { $in: city } },
+        { sector : {$in: sector } },
+        { location : {$in: location } },
+        { primarySkills : {$in: skills} },
+        { experience : {$in: experienceOverall} }
+      ],
+    });
+
+    return res.status(200).send({status:true, data: matchingJobs , message: "Success"});
+  } catch (error) {
+    return res.status(500).send({ status: false, message: error.message });
+  }
+};
+//new
 
 module.exports = {
   createPreference,
   updatePreference,
   fetchPreference,
   deletePreference,
-  searchJobsByPreferences
+  searchJobsByPreferences,
+  getAllUserPreferencesById,
+  showJobsByPreferenceID
 };
