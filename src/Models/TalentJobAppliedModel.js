@@ -26,5 +26,5 @@ const TalentAplicationsSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model("applied", TalentAplicationsSchema);
+module.exports = mongoose.model("TalentappliedJobs", TalentAplicationsSchema);
 
