@@ -1150,7 +1150,9 @@ const PREP = async function (req, res) {
   }
 };
 
+
 module.exports = {
   recruiterInformation, recruiterInfo, updateRecruiterData, recruiterSearch, PREP,
   searchJobseekerGeneral, deleteRecruiter, RevenuePlan, getRecruiterPlan, PlanWithJobPostInformation
 };
+
