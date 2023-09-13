@@ -33,7 +33,6 @@ mongoose
 app.use(express.json());
 app.use('/', route);
 
-
 // PORT
 const port = process.env.PORT || 8000;
 app.listen(port, () => {
