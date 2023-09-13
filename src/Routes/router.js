@@ -96,6 +96,7 @@ router.get("/personal/:id", infoController.personalInfo);//get personal info fro
 router.get('/hirankandpool/:id',infoController.findUsersWithHiRankAndPool)
 // router.get('/getUserDetails/:id',recruiterController.getUserDetailsWithMatchedJobPost);
 
+
 // ******************************login_&_Resister***********************************************************
 
 router.post("/create", userController.register);
