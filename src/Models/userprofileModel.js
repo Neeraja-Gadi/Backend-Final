@@ -53,7 +53,8 @@ const userprofileSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-userprofileSchema.statics.findByKeyAndId = async function (key, id) {
-  return this.findOne({ _id: id, "profileLink.key": key });
-};
+
+// userprofileSchema.statics.findByKeyAndId = async function (key, id) {
+//   return this.findOne({ _id: id, "profileLink.key": key });
+// };
 module.exports = mongoose.model("userProfile", userprofileSchema);
