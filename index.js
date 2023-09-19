@@ -49,7 +49,6 @@ const awsController= require("./src/Controllers/awsController")
 
 app.use( cors());
 
-
 // // DATABASE CONNECTION
  mongoose
      .connect(process.env.DATABASE, {
